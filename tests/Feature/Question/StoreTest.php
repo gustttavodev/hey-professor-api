@@ -1,7 +1,6 @@
 <?php
 
-use App\Models\Question;
-use App\Models\User;
+use App\Models\{Question, User};
 use Laravel\Sanctum\Sanctum;
 
 use function Pest\Laravel\{assertDatabaseHas, postJson};
@@ -16,7 +15,7 @@ it('should be able to store a new question', function () {
     ]))->assertSuccessful();
 
     assertDatabaseHas('questions', [
-        'user_id' => $user->id,
+        'user_id'  => $user->id,
         'question' => 'Lorem ipsum jeremias?',
     ]);
 });
@@ -31,8 +30,8 @@ test('with the creation of the question, we need to make sure that it creates wi
     ]))->assertSuccessful();
 
     assertDatabaseHas('questions', [
-        'user_id' => $user->id,
-        'status' => 'draft',
+        'user_id'  => $user->id,
+        'status'   => 'draft',
         'question' => 'Lorem ipsum jeremias?',
     ]);
 });
@@ -45,7 +44,7 @@ describe('validation rules', function () {
 
         postJson(route('questions.store', []))
             ->assertJsonValidationErrors([
-                'question' => 'required'
+                'question' => 'required',
             ]);
     });
 
@@ -55,10 +54,10 @@ describe('validation rules', function () {
         Sanctum::actingAs($user);
 
         postJson(route('questions.store', [
-            'question' => 'Question without a question mark'
+            'question' => 'Question without a question mark',
         ]))
             ->assertJsonValidationErrors([
-                'question' => 'The question should end with question mark (?).'
+                'question' => 'The question should end with question mark (?).',
             ]);
     });
 
@@ -68,10 +67,10 @@ describe('validation rules', function () {
         Sanctum::actingAs($user);
 
         postJson(route('questions.store', [
-            'question' => 'Question?'
+            'question' => 'Question?',
         ]))
             ->assertJsonValidationErrors([
-                'question' => 'least 10 characters'
+                'question' => 'least 10 characters',
             ]);
     });
 
@@ -80,8 +79,8 @@ describe('validation rules', function () {
         $user = User::factory()->create();
         Question::factory()->create([
             'question' => 'Lorem ipsum jeremias?',
-            'status' => 'draft',
-            'user_id' => $user->id
+            'status'   => 'draft',
+            'user_id'  => $user->id,
         ]);
 
         Sanctum::actingAs($user);
@@ -90,7 +89,7 @@ describe('validation rules', function () {
             'question' => 'Lorem ipsum jeremias?',
         ]))
             ->assertJsonValidationErrors([
-                'question' => 'already been taken'
+                'question' => 'already been taken',
             ]);
     });
 });
@@ -108,16 +107,15 @@ test('after creating we should return a status 201 with the created question', f
 
     $request->assertJson([
         'data' => [
-            'id' => $question->id,
-            'question' => $question->question,
-            'status' => $question->status,
+            'id'         => $question->id,
+            'question'   => $question->question,
+            'status'     => $question->status,
             'created_by' => [
-                'id' => $user->id,
-                'name' => $user->name
+                'id'   => $user->id,
+                'name' => $user->name,
             ],
             'created_at' => $question->created_at->format('Y-m-d h:i:s'),
             'updated_at' => $question->updated_at->format('Y-m-d h:i:s'),
-        ]
+        ],
     ]);
 });
-
